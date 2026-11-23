@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FreeTempo MIDI</title>
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+</head>
+<body>
+<div class="container">
+    <header class="page-header">
+        <div class="page-title">
+            <h1>FreeTempo MIDI</h1>
+            <p class="subtitle">MIDI 파일을 업로드하고 다운로드하세요.</p>
+        </div>
+        <div class="admin-area">
+            <form th:unless="${admin}" th:action="@{/admin/login}" method="post" class="admin-login">
+                <input type="password" name="password" placeholder="관리자 비밀번호" required>
+                <button type="submit" class="btn small">관리자 로그인</button>
+            </form>
+            <form th:if="${admin}" th:action="@{/admin/logout}" method="post" class="admin-login">
+                <span class="admin-badge">관리자로 로그인됨</span>
+                <button type="submit" class="btn small ghost">로그아웃</button>
+            </form>
+        </div>
+    </header>
+
+    <div th:if="${message}" class="alert success" th:text="${message}"></div>
+    <div th:if="${error}" class="alert error" th:text="${error}"></div>
+
+    <section class="card">
+        <h2>MIDI 업로드</h2>
+        <form th:action="@{/midi/upload}" th:object="${uploadForm}" method="post"
+              enctype="multipart/form-data" class="upload-form">
+            <div class="field">
+                <label for="title">제목</label>
+                <input type="text" id="title" th:field="*{title}" maxlength="200" placeholder="곡 제목">
+            </div>
+            <div class="field">
+                <label for="artist">아티스트</label>
+                <input type="text" id="artist" th:field="*{artist}" maxlength="200" placeholder="아티스트명">
+            </div>
+            <div class="field">
+                <label for="file">MIDI 파일</label>
+                <input type="file" id="file" name="file" accept=".mid,.midi" required>
+            </div>
+            <button type="submit" class="btn primary">업로드</button>
+        </form>
+    </section>
+
+    <section class="card">
+        <div class="board-header">
+            <h2>MIDI 목록 <span class="count" th:text="${totalItems}">0</span></h2>
+            <form th:action="@{/midi}" method="get" class="search-form">
+                <input type="text" name="keyword" th:value="${keyword}" placeholder="제목 또는 아티스트 검색">
+                <button type="submit" class="btn">검색</button>
+                <a th:if="${!#strings.isEmpty(keyword)}" th:href="@{/midi}" class="btn ghost">초기화</a>
+            </form>
+        </div>
+
+        <div class="table-wrap">
+            <table>
+                <thead>
+                <tr>
+                    <th class="col-no">No</th>
+                    <th>제목</th>
+                    <th>아티스트</th>
+                    <th>파일</th>
+                    <th class="col-size">크기</th>
+                    <th class="col-count">다운로드</th>
+                    <th class="col-date">등록일</th>
+                    <th class="col-actions">관리</th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr th:if="${#lists.isEmpty(files.content)}">
+                    <td colspan="8" class="empty">등록된 MIDI 파일이 없습니다.</td>
+                </tr>
+                <tr th:each="file : ${files.content}">
+                    <td class="col-no" th:text="${file.id}">1</td>
+                    <td th:text="${file.title}">제목</td>
+                    <td th:text="${file.artist}">아티스트</td>
+                    <td class="filename" th:text="${file.originalFilename}">file.mid</td>
+                    <td class="col-size" th:text="${file.fileSizeText}">1.0 KB</td>
+                    <td class="col-count" th:text="${file.downloadCount}">0</td>
+                    <td class="col-date" th:text="${file.createdAtText}">2026-01-01 00:00</td>
+                    <td class="col-actions">
+                        <a th:href="@{/midi/download/{id}(id=${file.id})}" class="btn small primary">다운로드</a>
+                        <form th:if="${admin}" th:action="@{/midi/{id}/delete(id=${file.id})}" method="post" class="inline"
+                              onsubmit="return confirm('정말 삭제하시겠습니까?');">
+                            <button type="submit" class="btn small danger">삭제</button>
+                        </form>
+                    </td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <nav class="pagination" th:if="${totalPages > 0}">
+            <a th:href="@{/midi(page=${currentPage - 1}, keyword=${keyword})}"
+               class="page-btn"
+               th:classappend="${currentPage == 0 ? 'disabled' : ''}">이전</a>
+            <a th:each="num : ${pageNumbers}"
+               th:href="@{/midi(page=${num}, keyword=${keyword})}"
+               class="page-btn"
+               th:classappend="${num == currentPage ? 'active' : ''}"
+               th:text="${num + 1}">1</a>
+            <a th:href="@{/midi(page=${currentPage + 1}, keyword=${keyword})}"
+               class="page-btn"
+               th:classappend="${currentPage + 1 >= totalPages ? 'disabled' : ''}">다음</a>
+        </nav>
+    </section>
+</div>
+</body>
+</html>

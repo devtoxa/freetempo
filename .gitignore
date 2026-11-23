@@ -1,0 +1,39 @@
+# Logs
+logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+node_modules
+dist
+dist-ssr
+*.local
+
+# Editor directories and files
+.vscode/*
+!.vscode/extensions.json
+.idea
+.DS_Store
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?
+
+# Generated Basic Pitch model assets
+public/model
+
+# midi-server (Gradle / build)
+midi-server/build/
+midi-server/.gradle/
+midi-server/.idea/
+midi-server/*.iml
+
+# py-yt-dlp-test
+py-yt-dlp-test/__pycache__/
+py-yt-dlp-test/*.pyc
+py-yt-dlp-test/downloads/
+py-yt-dlp-test/.venv/
+py-yt-dlp-test/build/
+py-yt-dlp-test/dist/
